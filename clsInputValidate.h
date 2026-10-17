@@ -1,5 +1,9 @@
 #pragma once
 #include <iostream>
+#include <string>
+#include <limits>
+#include <utility>
+#include <cstdlib>
 #include "clsDate.h"
 class clsInputValidate
 {
@@ -24,14 +28,16 @@ public:
 		int number;
 		while (true) {
 			cin >> number;
-			if (!cin.fail()) {
+			if (!cin.fail() && cin.peek() == '\n') {
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				return number;
 			}
-			else {
-				cout << "Invalid number, please try again: " << endl;
-				cin.clear();
-				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			if (cin.eof()) {
+				exit(0);
 			}
+			cout << "Invalid number, please try again: " << endl;
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		}
 	}
 	static int ReadIntNumberBetween(const string& message , int from, int to) {
@@ -50,14 +56,16 @@ public:
 		double number;
 		while (true) {
 			cin >> number;
-			if (!cin.fail()) {
+			if (!cin.fail() && cin.peek() == '\n') {
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				return number;
 			}
-			else {
-				cout << "Invalid number, please try again: " << endl;
-				cin.clear();
-				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			if (cin.eof()) {
+				exit(0);
 			}
+			cout << "Invalid number, please try again: " << endl;
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		}
 	}
 	static double ReadDblNumberBetween (const string& message, double from, double to) {
@@ -71,8 +79,7 @@ public:
 		}
 		return number;
 	}
-	static bool IsValidDate(const clsDate& date = clsDate()) {
-		return clsDate::IsValidDate(date);
+	static bool IsValidDate(short day, short month, short year) {
+		return clsDate::IsValidDate(day, month, year);
 	}
 };
-
