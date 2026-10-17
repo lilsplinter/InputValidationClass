@@ -54,10 +54,10 @@ void SetDate(string sDate , string delimter = "/")
 }
 void SetDate(short Day, short Month, short Year)
 {
-    clsDate date = ValidateDate(clsDate(Day, Month, Year));
-    _Day = date.Day;
-    _Month = date.Month;
-    _Year = date.Year;
+    NormalizeDate(Day, Month, Year);
+    _Day = Day;
+    _Month = Month;
+    _Year = Year;
 }
 void SetDate(short days, short Year)
 {
@@ -65,6 +65,24 @@ void SetDate(short days, short Year)
     _Day = date.Day;
     _Month = date.Month;
 	_Year = date.Year;
+}
+static void NormalizeDate(short& Day, short& Month, short& Year)
+{
+    if (Year < 1) Year = 1;
+    if (Month < 1) Month = 1;
+    if (Day < 1) Day = 1;
+    while (Month > 12) {
+        Month -= 12;
+        Year++;
+    }
+    while (Day > NumberOfDaysInAMonth(Month, Year)) {
+        Day -= NumberOfDaysInAMonth(Month, Year);
+        Month++;
+        if (Month > 12) {
+            Month = 1;
+            Year++;
+        }
+    }
 }
 public:
         
@@ -85,27 +103,6 @@ clsDate(short days, short Year)
 	SetDate(days, Year);
 }
 static clsDate ValidateDate(clsDate date) {
-	short extraDays = 0;
-	short extraMonths = 0;
-    if (date.Year < 1) {
-        date.Year = 1;
-    }
-    if (date.Month < 1) {
-        date.Month = 1;
-	}
-    if (date.Day < 1) {
-        date.Day = 1;
-    }
-    if (date.Month > 12) {
-		extraMonths = date.Month - 12;
-		date.Month = 12;
-		date = date.IncreaseDateByXMonths(extraMonths);
-    } 
-    if (date.Day > NumberOfDaysInAMonth(date.Month, date.Year)) {
-		extraDays = date.Day - NumberOfDaysInAMonth(date.Month, date.Year);
-		date.Day = NumberOfDaysInAMonth(date.Month, date.Year);
-		date = date.AddDays(extraDays);
-    }
     return date;
 }
 clsDate ValidateDate() {
@@ -152,6 +149,12 @@ static bool IsValidDate(clsDate Date) {
 }
 bool IsValid() {
 	return IsValidDate(*this);
+}
+static bool IsValidDate(short Day, short Month, short Year) {
+    if (Year < 1 || Month < 1 || Month > 12 || Day < 1) {
+        return false;
+    }
+    return Day <= NumberOfDaysInAMonth(Month, Year);
 }
 static string DateToString(clsDate Date) {
     return to_string(Date._Day) + "/" +
@@ -232,7 +235,13 @@ int NumberOfSecondsInAMonth() {
     return NumberOfSecondsInAMonth(_Month, _Year);
 }
 static short DayOfWeekOrder(short Day, short Month, short Year) {
-    return (Day + (13 * (Month + 1) / 5) + Year % 100 + (Year % 100) / 4 + Year / 100 + 5 * (Year / 100)) % 7;
+    if (Month < 3) {
+        Month += 12;
+        Year--;
+    }
+    short K = Year % 100;
+    short J = Year / 100;
+    return (Day + (13 * (Month + 1)) / 5 + K + K / 4 + J / 4 + 5 * J) % 7;
 }
 short DayOfWeekOrder() {
     return DayOfWeekOrder(_Day,_Month,_Year);
@@ -248,7 +257,7 @@ string DayShortName() {
     return DayShortName(_Day, _Month, _Year);
 }
 static string MonthShortName(short MonthNumber) {
-    string ShortName[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Sep", "Dec" };
+    string ShortName[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
     return ShortName[MonthNumber - 1];
 }
 static void PrintMonthCalendar(short Month, short Year) {
@@ -414,18 +423,20 @@ clsDate IncreaseDateByXWeeks(short Weeks) {
 	return IncreaseDateByXWeeks(Weeks, *this);
 }
 static clsDate IncreaseDateByOneMonth(clsDate Date) {
-        if (Date.Month == 12) {
-            Date.Year++;
-            Date.Month = 1;
-        }   
-        if (Date.Day > NumberOfDaysInAMonth(Date.Month, Date.Year)) {
-            Date.Day = NumberOfDaysInAMonth(Date.Month, Date.Year);
-            Date.Month++;
-		}
-        else {
-            Date.Month++;
-		}
-		return Date;
+    short Day = Date.GetDay();
+    short Month = Date.GetMonth();
+    short Year = Date.GetYear();
+    if (Month == 12) {
+        Month = 1;
+        Year++;
+    }
+    else {
+        Month++;
+    }
+    if (Day > NumberOfDaysInAMonth(Month, Year)) {
+        Day = NumberOfDaysInAMonth(Month, Year);
+    }
+    return clsDate(Day, Month, Year);
 }
 clsDate IncreaseDateByOneMonth() {
 	return IncreaseDateByOneMonth(*this);
