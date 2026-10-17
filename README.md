@@ -8,9 +8,9 @@ A small reusable C++ class that reads input from the console and checks it befor
 
 | Function | What it does |
 |---|---|
-| `ReadIntNumber(message)` | Reads a whole line and accepts only a valid integer |
+| `ReadIntNumber(message)` | Reads an integer and rejects anything else (`abc`, `12abc`, `5.7`) |
 | `ReadIntNumberBetween(message, from, to)` | Same, but the number must be inside the range |
-| `ReadDblNumber(message)` | Reads a decimal number (`nan` and `inf` are rejected) |
+| `ReadDblNumber(message)` | Reads a decimal number and rejects anything else (`abc`, `12abc`) |
 | `ReadDblNumberBetween(message, from, to)` | Same, but the number must be inside the range |
 | `IsNumberBetween(number, from, to)` | Range check for any number type (template) |
 | `IsDateBetween(date, from, to)` | Checks if a date is inside a date range |
@@ -49,10 +49,10 @@ Input / output:
 
 ```
 Enter your age (18-65): abc
-Invalid number, please try again.
-Enter your age (18-65): 70
-The number must be between 18 and 65.
-Enter your age (18-65): 30
+Invalid number, please try again:
+70
+Invalid number, please try again:
+30
 Age accepted: 30
 ```
 
@@ -62,7 +62,7 @@ Checking input before using it prevents crashes and wrong data. It is a basic ha
 
 ## What I learned
 
-- Reading a whole line with `getline` and checking it, instead of `cin >> number`, which leaves characters in the input
+- Checking that nothing is left in the input after the number (`12abc` is not a number)
 - Writing a reusable class with static functions and a template
 - Why a date class that corrects wrong values by itself cannot be used to validate input
 
